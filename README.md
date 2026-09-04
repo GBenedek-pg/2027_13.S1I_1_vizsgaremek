@@ -1,0 +1,1 @@
+# 2027_13.S1I_1_vizsgaremek
