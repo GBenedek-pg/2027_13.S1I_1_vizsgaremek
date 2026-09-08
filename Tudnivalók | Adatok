@@ -1,0 +1,3 @@
+Klasszikus ESP32 (pl. AI-Thinker ESP32-CAM): Az újabb szoftveres könyvtárakban már hivatalosan nem támogatott az arcfelismerés a klasszikus chippel, mert nagyon lassú és hiányoznak belőle a modern AI utasításkészletek. Régebbi könyvtárverziókkal ugyan működésre bírható, de a sebessége gyenge. 
+ESP32-S3 (vagy újabb, pl. ESP32-S3-CAM): Az arcfelismerés és a mesterséges intelligencia (AI) ezen a hardveren futtatható igazán jól. Az ESP32-S3 beépített vektoriális utasításokkal és megfelelő PSRAM memóriával rendelkezik a gyors képfeldolgozáshoz. 
+Működési elv: A folyamat általában közvetlenül a mikrokontrolleren fut (edge AI), külső szerver vagy erős PC (például OpenCV) nélkül is, ha megfelelő az Espressif által biztosított keretrendszer.
