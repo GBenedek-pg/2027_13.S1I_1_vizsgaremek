@@ -1,3 +1,155 @@
 Klasszikus ESP32 (pl. AI-Thinker ESP32-CAM): Az újabb szoftveres könyvtárakban már hivatalosan nem támogatott az arcfelismerés a klasszikus chippel, mert nagyon lassú és hiányoznak belőle a modern AI utasításkészletek. Régebbi könyvtárverziókkal ugyan működésre bírható, de a sebessége gyenge. 
 ESP32-S3 (vagy újabb, pl. ESP32-S3-CAM): Az arcfelismerés és a mesterséges intelligencia (AI) ezen a hardveren futtatható igazán jól. Az ESP32-S3 beépített vektoriális utasításokkal és megfelelő PSRAM memóriával rendelkezik a gyors képfeldolgozáshoz. 
 Működési elv: A folyamat általában közvetlenül a mikrokontrolleren fut (edge AI), külső szerver vagy erős PC (például OpenCV) nélkül is, ha megfelelő az Espressif által biztosított keretrendszer.
+
+
+# Projektspecifikáció: Integrált Kollégiumi Működési és Ügyviteli Rendszer
+
+---
+
+## 1. A projekt háttere és átfogó célja
+
+A kollégiumi élet mindennapjai sok szervezési, adminisztrációs és kommunikációs feladatot adnak a nevelőtanároknak és a diákoknak egyaránt. A feladatok egy része jelenleg papíron vagy egymástól különálló csatornákon fut, ami lassítja a napi munkát és megnehezíti az információk gyors elérését.
+
+A projekt célja egy olyan központi, modern és könnyen használható digitális felület megtervezése és elkészítése, amely egyetlen közös helyen fogja össze a kollégium teljes belső életét. A rendszer elsődleges feladata, hogy csökkentse a tanárokra nehezedő adminisztrációs terheket, átláthatóvá és gyorssá tegye a diákok számára a mindennapi ügyintézést, valamint valós idejű betekintést adjon az intézmény működésébe.
+
+---
+
+## 2. Érintett szerepkörök és a felület használata
+
+A rendszer úgy készül el, hogy a különböző felhasználói csoportok a saját feladataikhoz és jogaikhoz igazított felületet lássák, segítve ezzel a napi munkát és a tájékozódást.
+
+### 2.1. Diákok (Bentlakók)
+
+A diákok számára a felület egy személyes központként működik, ahol egy helyen intézhetik a kollégiumi életükhöz kapcsolódó ügyeket. A felületen átláthatják a saját adataikat, bejelenthetik és nyomon követhetik a hiányzásaikat, kezelhetik az étkezéseiket, jelezhetik a szobájukban felmerülő műszaki hibákat, használhatják a belépéshez szükséges funkciókat, valamint jelentkezhetnek a kollégiumi programokra és szakkörökre.
+
+### 2.2. Nevelőtanárok és Oktatók
+
+A tanárok számára a rendszer egy mindennapi ellenőrzési és szervezési eszköz. Áttekinthető felületet ad a csoportjaikhoz tartozó diákok jelenlétéről, tanulmányi helyzetéről és kérelmeiről. A tanárok gyorsan elbírálhatják a beérkező igazolásokat, felügyelhetik a hiba- és panaszbejelentések állapotát, kezelhetik az épületbe való ki- és belépési engedélyeket, eseményeket szervezhetnek, és nyomon követhetik a kollégiumi szabályok betartását.
+
+### 2.3. Rendszeradminisztrátorok és Intézményvezetők
+
+A vezetőség és az adminisztrátorok számára a felület átfogó statisztikákat, elemzéseket és beállítási lehetőségeket nyújt. Ők felelnek a felhasználói jogok kezeléséért, az adatok karbantartásáért, az épület általános nyitási és zárási állapotaiért, valamint az intézményi szintű kimutatások elkészítéséért.
+
+---
+
+## 3. Részletes működési modulok
+
+### 3.1. Felhasználói Profilok és Adatkezelési Modul
+
+Ez a modul képezi a rendszer alappillérét, amely biztonságosan tárolja és kezelheti a kollégiumi közösség tagjainak adatait.
+
+* **Központi adattár:** A diákok és munkatársak személyes, elérhetőségi és intézményi adatainak felépített nyilvántartása.
+
+
+* **Keresés és szűrés:** Gyors keresési lehetőségek biztosítása a jogosultsággal rendelkező felhasználók számára (például szoba, osztály vagy szakkör alapján).
+
+
+* **Információs központ:** A kollégiumi házirend, az alapvető szabályok, a napirend és a fontos tájékoztatók könnyen elérhető közzététele.
+
+
+
+### 3.2. Jelenlét- és Távolmaradás-kezelő Modul
+
+A modul célja a diákok mozgásának, kimenőinek és hiányzásainak pontos, valós idejű nyomon követése.
+
+* **Távolmaradás bejelentése és igazolása:** A diákok vagy szüleik által benyújtott hiányzási kérelmek kezelése (például betegség, családi okok, tanulmányi vagy sportesemények miatt).
+
+
+* **Többlépcsős jóváhagyás:** A beérkező igazolások és kérelmek tanári elbírálása és állapotának frissítése.
+
+
+* **Rendszeres ellenőrzési pontok:** A kötelező szobában tartózkodások (például tanulási idő, esti létszámellenőrzés) digitális felügyelete és az eltérések automatikus jelzése.
+
+
+* **Jelenléti statisztikák:** Automatikus kimutatások készítése az igazolt és igazolatlan hiányzásokról.
+
+
+
+### 3.3. Étkezéskezelési és Ügyviteli Modul
+
+A kollégiumi étkeztetés szervezésének digitális átállása a pazarlás csökkentése és a gördülékeny kiszolgálás érdekében.
+
+* **Étkezések lemondása és igénylése:** Rugalmas felület az étkezések előre történő lemondására vagy pótlólagos igénylésére.
+
+
+* **Automatikus összeköttetés:** A távollét-kezelő modullal való együttműködés révén a rendszer felajánlja az étkezés automatikus lemondását a bejelentett hiányzási időszakokra.
+
+
+* **Befizetési és egyenleg-információk:** A menzadíjakkal és egyenlegekkel kapcsolatos tájékoztatás megjelenítése.
+
+
+
+### 3.4. Hibabejelentési és Karbantartási Modul
+
+A kollégium épületállapotának megóvását és a gyors hibaelhárítást támogató modul.
+
+* **Problémák bejelentése:** A diákok és tanárok által tapasztalt műszaki, karbantartási vagy tisztasági hiányosságok egységes rögzítése.
+
+
+* **Folyamatkövetés és felelősök:** A bejelentett hibák hozzárendelése a felelős személyekhez, valamint a javítás állapotának (például folyamatban, befejezve, csúszásban) átlátható mutatása.
+
+
+* **Panaszkezelés:** Az egyéb vagy közösségi együttéléssel kapcsolatos észrevételek diszkrét kezelése.
+
+
+
+### 3.5. Közösségi Élet és Eseményszervező Modul
+
+A kollégiumi programok, közösségi tevékenységek és feladatok átlátható szervezését biztosító felület.
+
+* **Események nyilvántartása:** Kötelező és szabadon választható rendezvények, szakkörök, tájékoztatók és gyakorlatok meghirdetése.
+
+
+* **Részvétel-kezelés:** Jelentkezés a programokra, a résztvevők létszámának és névsorának kezelése.
+
+
+* **Rendszeres feladatok naplózása:** A kollégiumi tisztasági és rendrakási feladatok nyomon követése és ellenőrzése.
+
+
+
+### 3.6. Tanulmányi és Magatartási Nyomonkövető Modul
+
+A diákok iskolai előrehaladásának és kollégiumi teljesítményének segítésére szolgáló modul.
+
+* **Tanulmányi átlagok nyomon követése:** A tanulmányi eredmények összefoglaló nézetei a nevelőtanárok munkájának támogatására.
+
+
+* **Ösztönzés és kedvezmények:** A jó teljesítményért járó kedvezmények, illetve a mulasztásokból eredő kötelezettségek nyilvántartása és nyomon követése.
+
+
+
+### 3.7. Kapurendszer és Beléptető Modul
+
+Az épületbe való be- és kijutás, valamint a mozgások és ajtók vezérlése.
+
+* **Ajtó nyitása és zárása:** Az ajtók nyitási és zárási funkcióinak vezérlése, felügyelete és adminisztrációja.
+
+
+* **Azonosítás és kódbeolvasás:** Személyenként egyedi QR-kódok beolvasása, amelyek a jóváhagyott kérelmek alapján, a megadott időtartamra aktiválódnak.
+
+
+* **Visszajelzés a beolvasáskor:** Vizuális jelzés (lámpa) biztosítása a beolvasó sikeres elfogadásakor.
+
+
+* **Tömeges belépés kezelése:** Nagyfokú áthaladási forgalom esetén az ajtó zárásának automatikus igazítása az utoljára beolvasott személyhez.
+
+
+* **Rendszerállapot és engedélyek:** A kollégium általános nyitási és zárási státuszának kezelése intézményi szinten, a belépési engedélyek ellenőrzése, valamint a diákok tartózkodási státuszának (belépve / távol) valós idejű mutatása.
+
+
+
+---
+
+## 4. Általános Rendszerjellemzők
+
+* **Azonnali adatáramlás:** A rendszerben végrehajtott módosítások és bejelentések azonnal megjelennek a többi érintett felhasználó felületén.
+
+
+* **Automatikus értesítések:** Üzenetek és figyelmeztetések küldése a fontos eseményekről, állapotváltozásokról vagy határidőkről.
+
+
+* **Adatvédelem és biztonság:** A beállított jogok biztosítják, hogy minden felhasználó csak a számára engedélyezett adatokhoz férhessen hozzá.
+
+
+* **Könnyen használható felület:** A rendszer kialakítása biztosítja a kényelmes használatot asztali számítógépeken és mobiltelefonokon egyaránt.
