@@ -153,3 +153,16 @@ Az épületbe való be- és kijutás, valamint a mozgások és ajtók vezérlés
 
 
 * **Könnyen használható felület:** A rendszer kialakítása biztosítja a kényelmes használatot asztali számítógépeken és mobiltelefonokon egyaránt.
+
+
+
+
+ADATBÁZISSAL FELVETÜLŐ KÉRDÉS
+
+Modellhibák, amiket érdemes átgondolnod
+
+A vizsgaremeknél a PDF-ben is szereplő normalizált szerkezet jobban mutat. Három helyen szerintem hibás az eredeti terv:
+
+1.Tanar.diakid azt jelenti, hogy egy tanárhoz egyetlen diák tartozik. Valószínűleg fordítva kellene: Diak.tanarid.
+2.Programok.jelentkezoid miatt egy programra csak egy diák jelentkezhet. Több jelentkezőhöz külön kapcsolótábla kell, például Jelentkezes(diakid, programid).
+3.Diak.kerelemid miatt egy diáknak csak egy kérelme lehet. A Kerelem táblában legyen diakid.
