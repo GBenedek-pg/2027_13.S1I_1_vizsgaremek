@@ -1,0 +1,87 @@
+Összevetettem a KoliTrack specifikációt a diagrammal, és megírtam a javított sémát. A kolitrack_adatbazis.sql fájlt be tudod importálni a szerkesztőbe az Import → SQL (MySQL) menüvel.
+
+Mik voltak a hibák a mostani diagramon
+
+1. Rossz oldalon vannak a kapcsolatok
+
+Tanar.diakid: így egy tanárnak csak egy diákja lehetne. Ezt a mezőt törölni kell. A tanár–diák kapcsolat egy összekötő táblába kerül (lásd lent).
+Tanar.programid: így egy tanár csak egy programot hozhatna létre. Fordítva kell: a programok tábla kap egy letrehozo_tanar_id mezőt.
+Diak.kerelemid: így egy diáknak csak egy kérelme lehetne. Fordítva kell: a kerelmek tábla kap egy diak_id mezőt.
+
+Az ökölszabály: egy-a-többhöz kapcsolatnál az idegen kulcs mindig a „több” oldalon van. Egy diáknak sok kérelme van, ezért a diak_id a kérelem táblába kerül.
+
+2. A Felhasznalo tábla nincs összekötve semmivel. A Diak és a Tanar tábla is kap egy felhasznalo_id mezőt, ami UNIQUE, tehát 1:1 kapcsolat. A felhasznalok táblába bekerül egy szerepkor mező (diak/tanar/admin). A telefonszám is ide költözik, mert mindkét szerepkörnek van.
+
+3. Kerelem.jovahagyva boolean. Egy kérelemnek három állapota lehet: függőben, jóváhagyva, elutasítva. Egy boolean csak kettőt tud tárolni, ezért ez statusz ENUM lett. Az idokorlat mezőt töröltem, mert a tavozas és az erkezes már megadja az időtartamot.
+
+4. Hibajelentes két külön bejelentő mezővel. A bejelento_diakid és a bejelento_tanarid helyett egyetlen bejelento_id kell, ami a felhasznalok táblára mutat, mert a diák és a tanár is felhasználó.
+
+5. Az id-k típusa keveredik (int és bigint). Laravelben a $table->id() és a foreignId() BIGINT UNSIGNED típust ad, ezért mindenhol ezt használtam. Ha ez nem egyezik, a migrációnál hibát kapsz a foreign key-nél.
+
+Összekötő táblák (N:M)
+
+Két összekötő tábla kell:
+
+Tábla	Mit köt össze	Honnan jön
+tanar_diak	nevelőtanár ↔ diák. Egy diáknak több kijelölt tanára lehet, egy tanárnak sok diákja van.	ez a mostani table_10, csak nevet kap
+program_diak	program ↔ diák: meghívás, jelentkezés, részvétel	ez a mostani Pjelentkezo. A kulcs (program_id, diak_id), így egy diák nem tud kétszer jelentkezni ugyanarra a programra.
+
+Minden más kapcsolat sima 1:N, és elég hozzá egy idegen kulcs.
+
+Táblák, amik hiányoztak a specifikáció alapján
+rendszeres_tavolletek: az „automatikus engedélyezés” funkcióhoz (edzés, szakkör, pl. minden kedden 16–18-ig). Ebből a rendszer automatikusan jóváhagyott kérelmeket generál.
+athaladasok: a kapunál minden QR-beolvasás egy sor (ki/be, időpont). Ebből jön a dashboard három állapota:
+épületben: az utolsó beolvasás „be” volt;
+engedéllyel távol: az utolsó beolvasás „ki” volt, és van rá jóváhagyott kérelem;
+igazolatlanul távol: az utolsó beolvasás „ki” volt, de nincs hozzá érvényes kérelem.
+Diak.qr_kod: minden diák egyedi QR-kódja. Akkor „aktív”, ha éppen van jóváhagyott kérelme.
+kerelmek.tipus (kimenő / hiányzás) és menza_lemondva: a „távollét beírás” és a menza-emlékeztető ugyanabba a táblába kerül, nem kell külön tábla.
+ertesitesek: az értesítési rendszerhez. Laravelben ehelyett a beépített notifications táblát is használhatod.
+tajekoztatok (házirend, napirend) és szoba_ellenorzesek (tisztasági ellenőrzés): ezek a 4.1-es és a 4.5-ös pontból jönnek. Ha kevés az idő, ezeket hagyhatjátok utoljára.
+Amit szándékosan nem tettem bele
+A szakkör szerinti keresést: ehhez egy szakkorok tábla és egy diak_szakkor összekötő tábla kellene.
+A kapunyitás és -zárás vezérlését: ez inkább az ESP32 kódjában lesz, nem az adatbázisban.
+
+Ha szerinted a szakkör kell, szólj, és hozzáadom.
+
+Kolitrack adatbazis
+Code
+·SQL
+
+Készíts diagrammot az így kijavított táblázathoz
+
+KoliTrack – adatbázis diagram
+Artifact
+·Only you
+
+Kész a diagram a javított sémához: mind a 15 tábla benne van, és mind a 22 kapcsolat. Megcsináltam interaktív oldalnak és képnek is.
+
+Az interaktív oldal:
+
+Ha egy tábla fölé viszed az egeret, csak az ő kapcsolatai maradnak láthatók. Ha rákattintasz, a kiemelés megmarad, amíg újra nem kattintasz. Ez sokat segít, mert a diakok és a tanarok táblába nagyon sok vonal fut be.
+Nagyítani is lehet, és egérrel húzva tudod mozgatni.
+A tábla fejlécének színe mutatja, melyik modulhoz tartozik. Az összekötő táblák fejléce piros.
+A vonal színe azt mutatja, melyik táblára mutat az idegen kulcs. Például a narancs vonal a diakok, a türkiz a tanarok táblára mutat.
+A vonalak végén a szokásos ER-jelölés van:
+a „villa” jelenti a sok oldalt (1:N);
+a kettős vonal jelenti az 1:1 kapcsolatot (ilyen a felhasznalo_id a diakok és a tanarok táblában);
+a kis kör azt jelenti, hogy az idegen kulcs lehet NULL.
+
+A kép: a kolitrack_er_diagram.png ugyanez a diagram, ezt be tudod tenni a vizsgaremek dokumentációjába.
+
+A tanarok táblából a kerelmek táblába futó egyik vonal elég nagy ívet ír le, mert a tanár sok táblával van összekötve. Ha a saját szerkesztődben szebben szeretnéd elrendezni a táblákat, töltsd be oda a korábbi kolitrack_adatbazis.sql fájlt, és ott kézzel is áthúzhatod őket.
+
+et megtudod csinálni dbdiagram kódban?
+
+Megcsináltam dbdiagram-kódban (DBML-ben), a kolitrack.dbml fájlban van. Ugyanaz a 15 tábla és 22 kapcsolat, mint a diagramon. A fájlt nem tudtam itt lefuttatni egy DBML-ellenőrzővel. Ha a dbdiagram hibát jelez, küldd el az üzenetet, és kijavítom.
+
+Hogyan olvasd a kódot:
+
+ref: > diakok.id: több-az-egyhez kapcsolat. Sok kérelem tartozik egy diákhoz.
+ref: - felhasznalok.id: egy-az-egyhez kapcsolat. Ez van a tanarok és a diakok táblában, mert egy felhasználó csak egy diák vagy egy tanár lehet.
+A két összekötő táblának (tanar_diak, program_diak) nincs külön id mezője. Az elsődleges kulcs a két idegen kulcs párosa, ezt az indexes { (... , ...) [pk] } rész adja meg.
+Az ENUM mezők (pl. a kérelem státusza) külön Enum blokkban vannak a fájl elején.
+A TableGroup blokkok a modulokat színes keretbe teszik, mint a te eredeti diagramodon.
+A Note és a note: csak megjegyzés, a diagramon akkor jelenik meg, ha az egeret a tábla vagy a mező fölé viszed.
+
+A dbdiagram az elrendezést automatikusan csinálja, ezért a táblákat kézzel érdemes egy kicsit szétrendezni. A kapcsolatok közben megmaradnak. A felső menüben az Export → MySQL ad SQL-t is, ha később kellene.

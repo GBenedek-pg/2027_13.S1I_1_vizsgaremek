@@ -1,0 +1,216 @@
+// KoliTrack – javított adatbázis (dbdiagram.io / DBML)
+// Másold be a dbdiagram.io bal oldali szerkesztőjébe.
+
+Project KoliTrack {
+  database_type: 'MySQL'
+  Note: 'Kollégiumi kimenő-, távollét- és jelenlétkezelő rendszer'
+}
+
+// =========================================================
+// ENUM típusok
+// =========================================================
+
+Enum szerepkor_tipus {
+  diak
+  tanar
+  admin
+}
+
+Enum kerelem_tipus {
+  kimeno
+  hianyzas
+}
+
+Enum kerelem_statusz {
+  fuggoben
+  jovahagyva
+  elutasitva
+}
+
+Enum irany_tipus {
+  ki
+  be
+}
+
+Enum hiba_statusz {
+  uj
+  folyamatban
+  megoldva
+}
+
+// =========================================================
+// FELHASZNÁLÓK
+// =========================================================
+
+Table felhasznalok {
+  id int [pk, increment]
+  nev varchar(100) [not null]
+  email varchar(150) [not null, unique]
+  jelszo varchar(50) [not null]
+  szerepkor szerepkor_tipus [not null]
+  telefonszam varchar(20)
+  letrehozva datetime [default: `now()`]
+}
+
+Table szobak {
+  id int [pk, increment]
+  szam smallint [not null, unique]
+  emelet smallint [not null]
+}
+
+Table tanarok {
+  id int [pk, increment]
+  felhasznalo_id int [not null, unique, ref: - felhasznalok.id]
+}
+
+Table diakok {
+  id int [pk, increment]
+  felhasznalo_id int [not null, unique, ref: - felhasznalok.id]
+  szoba_id int [ref: > szobak.id,not null]
+  osztaly varchar(10) [not null]
+  szulo_nev varchar(100)
+  szulo_telefon varchar(20)
+}
+
+// ÖSSZEKÖTŐ TÁBLA 1: nevelőtanár <-> diák (N:M), a régi "table_10"
+Table tanar_diak {
+  tanar_id int [not null, ref: > tanarok.id]
+  diak_id int [not null, ref: > diakok.id]
+
+  indexes {
+    (tanar_id, diak_id) [pk]
+  }
+  Note: 'Összekötő tábla: melyik nevelőtanárhoz melyik diák tartozik'
+}
+
+// =========================================================
+// TÁVOLLÉT, KIMENŐ, KAPU
+// =========================================================
+
+Table rendszeres_tavolletek {
+  id int [pk, increment]
+  diak_id int [not null, ref: > diakok.id]
+  engedelyezo_tanar_id int [not null, ref: > tanarok.id]
+  ok varchar(255) [not null]
+  nap tinyint [not null, note: '1 = hétfő ... 7 = vasárnap']
+  kezdes time [not null]
+  vege time [not null]
+  ervenyes_tol date [not null]
+  ervenyes_ig date [not null]
+
+  Note: 'Edzés, szakkör: ebből generálódnak az automatikusan jóváhagyott kérelmek'
+}
+
+Table kerelmek {
+  id int [pk, increment]
+  diak_id int [not null, ref: > diakok.id]
+  tipus kerelem_tipus [not null]
+  indoklas text [not null]
+  tavozas datetime [not null]
+  erkezes datetime [not null]
+  statusz kerelem_statusz [not null, default: 'fuggoben']
+  elbiralo_tanar_id int [ref: > tanarok.id,not null]
+  elbiralva datetime
+  rendszeres_tavollet_id int [ref: > rendszeres_tavolletek.id, note: 'ha automatikusan generált',not null]
+  letrehozva datetime [default: `now()`]
+
+  Note: 'Kimenőkérelem és hiányzás-bejelentés egy táblában'
+}
+
+// =========================================================
+// PROGRAMOK
+// =========================================================
+
+Table programok {
+  id int [pk, increment]
+  letrehozo_tanar_id bigint [not null, ref: > tanarok.id]
+  nev varchar(150) [not null]
+  leiras text
+  helyszin varchar(150)
+  kezdes datetime [not null]
+  kotelezo boolean [not null, default: false]
+  mindenkinek boolean [not null, default: true, note: 'false = csak a program_diak-ban szereplő diákoknak']
+}
+
+// ÖSSZEKÖTŐ TÁBLA 2: program <-> diák (N:M), a régi "Pjelentkezo"
+Table program_diak {
+  program_id int [not null, ref: > programok.id]
+  diak_id int [not null, ref: > diakok.id]
+  jelentkezett datetime [note: 'NULL = csak meghívott']
+  resztvett boolean [not null, default: false]
+
+  indexes {
+    (program_id, diak_id) [pk]
+  }
+  Note: 'Összekötő tábla: meghívás, jelentkezés, részvétel'
+}
+
+// =========================================================
+// EGYÉB MODULOK
+// =========================================================
+
+Table hibajelentesek {
+  id int [pk, increment]
+  bejelento_id int [not null, ref: > felhasznalok.id, note: 'diák vagy tanár']
+  szoba_id int [ref: > szobak.id, not null]
+  helyszin varchar(150) [note: 'ha nem szobában van a hiba']
+  leiras text [not null]
+  statusz hiba_statusz [not null, default: 'uj']
+  letrehozva datetime [default: `now()`]
+}
+
+Table tanulmanyok {
+  id int [pk, increment]
+  diak_id int [not null, ref: > diakok.id]
+  tantargy varchar(100) [not null]
+  jegy tinyint [not null]
+  datum date [not null]
+}
+
+Table ertesitesek {
+  id int [pk, increment]
+  felhasznalo_id int [not null, ref: > felhasznalok.id]
+  cim varchar(150) [not null]
+  uzenet text
+  olvasva boolean [not null, default: false]
+  letrehozva datetime [default: `now()`]
+}
+
+Table tajekoztatok {
+  id int [pk, increment]
+  szerzo_tanar_id int [not null, ref: > tanarok.id]
+  cim varchar(150) [not null]
+  tartalom text [not null]
+  letrehozva datetime [default: `now()`]
+
+  Note: 'Házirend, napirend, tájékoztatók'
+}
+
+// =========================================================
+// CSOPORTOK (színes keretek a diagramon)
+// =========================================================
+
+TableGroup Felhasznalo_modul {
+  felhasznalok
+  tanarok
+  diakok
+  szobak
+  tanar_diak
+}
+
+TableGroup Tavollet_modul {
+  rendszeres_tavolletek
+  kerelmek
+}
+
+TableGroup Program_modul {
+  programok
+  program_diak
+}
+
+TableGroup Egyeb_modul {
+  hibajelentesek
+  tanulmanyok
+  ertesitesek
+  tajekoztatok
+}
